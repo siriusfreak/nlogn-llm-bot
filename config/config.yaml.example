@@ -1,0 +1,17 @@
+contesterToken: <token-for-contester>
+
+botToken: <tg-token>
+
+openAI:
+  apiKey: <openai-api-key>
+  model: "gpt-4-turbo"
+
+rateLimit: 30
+
+
+db:
+  host: localhost
+  port: 5432
+  user: postgres
+  password: password
+  database: nlogn_llm_bot
