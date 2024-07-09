@@ -1,1 +1,14 @@
 node_modules/
+config/
+.idea
+
+!config/config.yaml.example
+deploy/backend-config.tfvars
+deploy/.terraform
+/deploy/.terraform/
+/deploy/.terraform.lock.hcl
+/deploy/backend.tf
+/deploy/providers.tf
+/deploy/secrets.tf
+/deploy/secrets.tfvars
+/deploy/secrets_backend.tfvars
