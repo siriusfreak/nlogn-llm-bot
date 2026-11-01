@@ -12,7 +12,7 @@ import {
     User,
     UserData
 } from "./types";
-import {OpenAIChat} from "./clients/openai";
+import {ClaudeChat} from "./clients/claude";
 
 // @ts-ignore
 import Mustache from "mustache";
@@ -99,7 +99,7 @@ export interface GroupsRepository {
 
 export class BotService {
     constructor(private replies: Replies, private users: UserRepository, private groups: GroupsRepository, private generator: Generator, private generations: GenerationRepository,
-        private buttons: Buttons, private chat: OpenAIChat, private actions: ActionsRepository, private contester: Contester,
+        private buttons: Buttons, private chat: ClaudeChat, private actions: ActionsRepository, private contester: Contester,
                 private templates: TemplatesRepository, private rateLimiter: RateLimiter) {
     }
 
@@ -194,7 +194,7 @@ export class BotService {
             }
         } catch (e) {
             if (rateLimited) {
-                await ctx.reply("Превышен лимит запросов к OpenAI. Попробуйте позже")
+                await ctx.reply("Превышен лимит запросов к нейросети. Попробуйте позже")
                 return
             }
             throw e
@@ -261,7 +261,7 @@ export class BotService {
             }
         }).catch(async (error) => {
             console.log(error)
-            await ctx.reply("Произошла ошибка при общении с OpenAI. Попробуйте позже")
+            await ctx.reply("Произошла ошибка при общении с нейросетью. Попробуйте позже")
         })
     }
 
@@ -399,7 +399,7 @@ export class BotService {
 
         } catch (e) {
             if (rateLimited) {
-                await ctx.reply("Превышен лимит запросов к OpenAI. Попробуйте позже")
+                await ctx.reply("Превышен лимит запросов к нейросети. Попробуйте позже")
                 return
             }
             throw e
@@ -437,7 +437,7 @@ export class BotService {
 
         }).catch(async (error) => {
             console.log(error)
-            await ctx.reply("Произошла ошибка при общении с OpenAI. Попробуйте позже")
+            await ctx.reply("Произошла ошибка при общении с нейросетью. Попробуйте позже")
 
         })
     }
@@ -528,7 +528,7 @@ export class BotService {
             }
         } catch (e) {
             if (rateLimited) {
-                await ctx.reply("Превышен лимит запросов к OpenAI. Попробуйте позже")
+                await ctx.reply("Превышен лимит запросов к нейросети. Попробуйте позже")
                 return
             }
             throw e
@@ -551,7 +551,7 @@ export class BotService {
             }
         }).catch(async (error) => {
             console.log(error)
-            await ctx.reply("Произошла ошибка при общении с OpenAI. Попробуйте позже")
+            await ctx.reply("Произошла ошибка при общении с нейросетью. Попробуйте позже")
         })
     }
 
@@ -630,7 +630,7 @@ export class BotService {
             }
         } catch (e) {
             if (rateLimited) {
-                await ctx.reply("Превышен лимит запросов к OpenAI. Попробуйте позже")
+                await ctx.reply("Превышен лимит запросов к нейросети. Попробуйте позже")
                 return
             }
             throw e
@@ -670,7 +670,7 @@ export class BotService {
             ]);
         }).catch(async (error) => {
             console.log(error)
-            await ctx.reply("Произошла ошибка при общении с OpenAI. Попробуйте позже")
+            await ctx.reply("Произошла ошибка при общении с нейросетью. Попробуйте позже")
         })
     }
 

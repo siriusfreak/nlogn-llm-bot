@@ -1,10 +1,13 @@
+import fs from "fs";
 import Contester from "./contester";
 import loadConfig from "../config";
 
-describe('Integration tests for contester service', () => {
+// Talks to the real contester; runs only with a local config/config.yaml.
+const describeWithConfig = fs.existsSync('config/config.yaml') ? describe : describe.skip;
+
+describeWithConfig('Integration tests for contester service', () => {
     let contester: Contester;
 
-    const config = loadConfig('config/config.yaml');
     const USER_ID = 648;
     const USER_NAME = 'siriusfreak';
     const CONTEST_ID = 2067;
@@ -13,7 +16,7 @@ describe('Integration tests for contester service', () => {
     const SOLUTION_ID = 658599;
 
     beforeAll(async () => {
-        contester = new Contester(config.contesterToken);
+        contester = new Contester(loadConfig('config/config.yaml').contesterToken);
     })
 
     it('should fetch all contests for user', async () => {

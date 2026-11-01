@@ -31,14 +31,14 @@ export interface GenerationRepository {
     removeGeneration(generationId: number): Promise<void>;
 }
 
-export interface OpenAIChat {
+export interface LLMChat {
     Chat(messages: ChatMessage[]): Promise<string>
 }
 
 
 export default class Generator {
     private mutex: Mutex = new Mutex();
-    constructor(private templates: TemplatesRepository, private generations: GenerationRepository, private chat: OpenAIChat) {}
+    constructor(private templates: TemplatesRepository, private generations: GenerationRepository, private chat: LLMChat) {}
 
     private generate = async (task: GenerationTask): Promise<{ input: string, output: string }> => {
         const template = (await this.templates.getTemplate(task.templateName)).template
@@ -48,16 +48,16 @@ export default class Generator {
             previousDialog = (await this.generations.getPreviousDialog(task.previousGenerationId))
         }
 
-        const chatGPTInput: string = Mustache.render(template, task.templateVariables)
+        const llmInput: string = Mustache.render(template, task.templateVariables)
 
-        const chatGPTOutput = await this.chat.Chat([
+        const llmOutput = await this.chat.Chat([
             ...previousDialog, {
-                text: chatGPTInput,
+                text: llmInput,
                 isUser: true,
             }]
         )
 
-        return {input: chatGPTInput, output: chatGPTOutput}
+        return {input: llmInput, output: llmOutput}
     }
     async regenerate(generationId: number, dontCreateNew: boolean): Promise<{ generationId: number, isNew: boolean}> {
         let generation = await this.generations.getGeneration(generationId)

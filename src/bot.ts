@@ -2,7 +2,7 @@ import {Logger} from "tslog";
 import loadConfig from "./config";
 import {Telegraf} from "telegraf";
 import {BotContext} from "./types";
-import {OpenAIChat} from "./clients/openai";
+import {ClaudeChat} from "./clients/claude";
 import Database from "./database/database";
 import TemplatesRepository from "./models/templates";
 import {UserRepository} from "./models/user";
@@ -23,7 +23,7 @@ const logger = new Logger<any>({ name: "myLogger" });
 
 const config = loadConfig('config/config.yaml');
 const bot = new Telegraf<BotContext>(config.botToken);
-const openAIChat = new OpenAIChat(config.openAI);
+const claudeChat = new ClaudeChat(config.claude);
 const db = new Database(config.db);
 const contester = new Contester(config.contesterToken);
 
@@ -33,7 +33,7 @@ db.connect().then(() => {
     const generationsRepository = new GenerationsRepository(db);
     const actionsRepository = new ActionsRepository(db);
     const groupRepository = new GroupsRepository(db);
-    const generator = new Generator(templatesRepository, generationsRepository, openAIChat);
+    const generator = new Generator(templatesRepository, generationsRepository, claudeChat);
 
 
     const buttons = new ButtonsGenerator(generationsRepository, contester);
@@ -41,7 +41,7 @@ db.connect().then(() => {
 
     const rateLimiter = new RateLimit(config.rateLimit);
     const service = new BotService(replies, userRepository, groupRepository, generator, generationsRepository,
-        buttons, openAIChat, actionsRepository, contester, templatesRepository, rateLimiter);
+        buttons, claudeChat, actionsRepository, contester, templatesRepository, rateLimiter);
 
     setupMiddleware(bot, userRepository, groupRepository, logger, service);
     setupDispatcher(bot, service);

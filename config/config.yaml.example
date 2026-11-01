@@ -1,17 +1,22 @@
-contesterToken: <token-for-contester>
+# Local runs only: copy to config/config.yaml. Every field can be set (and is
+# overridden) by an environment variable, shown in brackets; in k8s the bot
+# reads everything from the environment and the image has no config file.
+# The Claude API key is never here: export ANTHROPIC_API_KEY.
 
-botToken: <tg-token>
+contesterToken: <token-for-contester>   # CONTESTER_TOKEN
 
-openAI:
-  apiKey: <openai-api-key>
-  model: "gpt-4-turbo"
+botToken: <tg-token>                    # TELEGRAM_TOKEN
 
-rateLimit: 30
+claude:
+  model: claude-sonnet-5-5              # CLAUDE_MODEL
+  effort: medium                        # CLAUDE_EFFORT: low | medium | high | xhigh | max
+
+rateLimit: 30                           # RATE_LIMIT
 
 
 db:
-  host: localhost
-  port: 5432
-  user: postgres
-  password: password
-  database: nlogn_llm_bot
+  host: localhost                       # DB_HOST
+  port: 5432                            # DB_PORT
+  user: postgres                        # DB_USER
+  password: password                    # DB_PASSWORD
+  database: nlogn_llm_bot               # DB_NAME
