@@ -1,5 +1,5 @@
 import Generator, {GenerationTask} from './generator';
-import { TemplatesRepository, GenerationRepository, OpenAIChat } from './generator';
+import { TemplatesRepository, GenerationRepository, LLMChat } from './generator';
 import {Template} from "./models/templates";
 import {ChatMessage, Generation, TemplateVariables} from "./types";
 // @ts-ignore
@@ -10,7 +10,7 @@ describe('Generator', () => {
     let generator: Generator;
     let mockTemplatesRepository: jest.Mocked<TemplatesRepository>;
     let mockGenerationsRepository: jest.Mocked<GenerationRepository>;
-    let mockOpenAIChat: jest.Mocked<OpenAIChat>;
+    let mockLLMChat: jest.Mocked<LLMChat>;
 
     beforeEach(() => {
 
@@ -27,11 +27,11 @@ describe('Generator', () => {
             removeGeneration: jest.fn(),
         };
 
-        mockOpenAIChat = {
+        mockLLMChat = {
             Chat: jest.fn(),
         };
 
-        generator = new Generator(mockTemplatesRepository, mockGenerationsRepository, mockOpenAIChat);
+        generator = new Generator(mockTemplatesRepository, mockGenerationsRepository, mockLLMChat);
     });
 
     it('should successfully generate using the provided task', async () => {
@@ -68,7 +68,7 @@ describe('Generator', () => {
         mockGenerationsRepository.getPreviousDialog.mockResolvedValueOnce([]);
         mockGenerationsRepository.retrieveGenerationsByProblemID.mockResolvedValueOnce([]);
         mockGenerationsRepository.addGeneration.mockResolvedValueOnce(expectedGeneration);
-        mockOpenAIChat.Chat.mockResolvedValueOnce(mockChatOutput);
+        mockLLMChat.Chat.mockResolvedValueOnce(mockChatOutput);
 
         // When
         const result = await generator.addTask(mockTask);
@@ -76,7 +76,7 @@ describe('Generator', () => {
         // Then
         expect(result).toBe(mockGenerationId);
         expect(mockTemplatesRepository.getTemplate).toBeCalledWith(mockTask.templateName);
-        expect(mockOpenAIChat.Chat).toBeCalled();
+        expect(mockLLMChat.Chat).toBeCalled();
         expect(mockGenerationsRepository.addGeneration).toBeCalledWith(
             mockTask.problemId, mockTask.previousGenerationId, mockTask.generationLevel,
             "", "", mockTask.templateName, mockTask.templateVariables, mockTask.solutionId
@@ -123,7 +123,7 @@ describe('Generator', () => {
         mockGenerationsRepository.getPreviousDialog.mockResolvedValueOnce(previousDialog);
         mockGenerationsRepository.retrieveGenerationsByProblemID.mockResolvedValueOnce([]);
         mockGenerationsRepository.addGeneration.mockResolvedValueOnce(expectedGeneration);
-        mockOpenAIChat.Chat.mockResolvedValueOnce(mockChatOutput);
+        mockLLMChat.Chat.mockResolvedValueOnce(mockChatOutput);
 
         // When
         const result = await generator.addTask(mockTask);
@@ -132,7 +132,7 @@ describe('Generator', () => {
         expect(result).toBe(mockGenerationId);
         expect(mockTemplatesRepository.getTemplate).toBeCalledWith(mockTask.templateName);
         expect(mockGenerationsRepository.getPreviousDialog).toBeCalledWith(mockTask.previousGenerationId);
-        expect(mockOpenAIChat.Chat).toBeCalledWith([...previousDialog, { text: expectedChatInput, isUser: true }]);
+        expect(mockLLMChat.Chat).toBeCalledWith([...previousDialog, { text: expectedChatInput, isUser: true }]);
         expect(mockGenerationsRepository.addGeneration).toBeCalledWith(
             mockTask.problemId, mockTask.previousGenerationId, mockTask.generationLevel,
             "", "", mockTask.templateName, mockTask.templateVariables, mockTask.solutionId
@@ -185,7 +185,7 @@ describe('Generator', () => {
         expect(mockGenerationsRepository.retrieveGenerationsByProblemID).toBeCalled();
         expect(mockTemplatesRepository.getTemplate).toBeCalledWith(mockTask.templateName);
         // Ensure other mocks are not called due to the error
-        expect(mockOpenAIChat.Chat).not.toBeCalled();
+        expect(mockLLMChat.Chat).not.toBeCalled();
         expect(mockGenerationsRepository.getPreviousDialog).not.toBeCalled();
     });
 
@@ -200,7 +200,7 @@ describe('Generator', () => {
 
         expect(mockGenerationsRepository.getGeneration).toBeCalledWith(mockGenerationId);
         // Ensure other mocks are not called due to the error
-        expect(mockOpenAIChat.Chat).not.toBeCalled();
+        expect(mockLLMChat.Chat).not.toBeCalled();
         expect(mockGenerationsRepository.addGeneration).not.toBeCalled();
         expect(mockGenerationsRepository.getPreviousDialog).not.toBeCalled();
         expect(mockGenerationsRepository.removeGeneration).not.toBeCalled();
@@ -303,7 +303,7 @@ describe('Generator', () => {
         // Then
         expect(result).toBe(existingGenerationId);
         expect(mockTemplatesRepository.getTemplate).not.toBeCalled();
-        expect(mockOpenAIChat.Chat).not.toBeCalled();
+        expect(mockLLMChat.Chat).not.toBeCalled();
         expect(mockGenerationsRepository.addGeneration).not.toBeCalled();
     });
 
@@ -340,7 +340,7 @@ describe('Generator', () => {
         mockGenerationsRepository.getPreviousDialog.mockResolvedValueOnce([]);
         mockGenerationsRepository.retrieveGenerationsByProblemID.mockResolvedValueOnce([]);
         mockGenerationsRepository.addGeneration.mockResolvedValueOnce(expectedGeneration);
-        mockOpenAIChat.Chat.mockRejectedValueOnce(new Error("Chat failed"));
+        mockLLMChat.Chat.mockRejectedValueOnce(new Error("Chat failed"));
 
         // Create a promise that resolves when `setGenerationStatusAndResult` is called
         const setStatusPromise = new Promise<void>((resolve) => {
@@ -357,7 +357,7 @@ describe('Generator', () => {
         // Then
         expect(result).toBe(mockGenerationId);
         expect(mockTemplatesRepository.getTemplate).toBeCalledWith(mockTask.templateName);
-        expect(mockOpenAIChat.Chat).toBeCalled();
+        expect(mockLLMChat.Chat).toBeCalled();
         expect(mockGenerationsRepository.addGeneration).toBeCalledWith(
             mockTask.problemId, mockTask.previousGenerationId, mockTask.generationLevel,
             "", "", mockTask.templateName, mockTask.templateVariables, mockTask.solutionId
@@ -412,7 +412,7 @@ describe('Generator', () => {
             "", "", mockTask.templateName, mockTask.templateVariables, mockTask.solutionId
         );
         // These methods should not be called due to the template error
-        expect(mockOpenAIChat.Chat).not.toBeCalled();
+        expect(mockLLMChat.Chat).not.toBeCalled();
 
         // Assert that `setGenerationStatusAndResult` is called with the 'FAILED' status
         expect(mockGenerationsRepository.setGenerationStatusAndResult).toBeCalledWith(
@@ -480,7 +480,7 @@ describe('Generator', () => {
         mockGenerationsRepository.getPreviousDialog.mockResolvedValue([]);
         mockGenerationsRepository.retrieveGenerationsByProblemID.mockResolvedValueOnce([]).mockResolvedValueOnce([]);
         mockGenerationsRepository.addGeneration.mockResolvedValueOnce(expectedGeneration1).mockResolvedValueOnce(expectedGeneration2);
-        mockOpenAIChat.Chat.mockResolvedValueOnce(mockChatOutput1).mockResolvedValueOnce(mockChatOutput2);
+        mockLLMChat.Chat.mockResolvedValueOnce(mockChatOutput1).mockResolvedValueOnce(mockChatOutput2);
 
         // When
         const [result1, result2] = await Promise.all([
@@ -491,7 +491,7 @@ describe('Generator', () => {
         // Then
         expect(result1).not.toEqual(result2);
         expect(mockTemplatesRepository.getTemplate).toHaveBeenCalledTimes(2);
-        expect(mockOpenAIChat.Chat).toHaveBeenCalledTimes(2);
+        expect(mockLLMChat.Chat).toHaveBeenCalledTimes(2);
         expect(mockGenerationsRepository.addGeneration).toHaveBeenCalledTimes(2);
         expect(mockGenerationsRepository.addGeneration).toHaveBeenCalledWith(
             mockTask1.problemId, mockTask1.previousGenerationId, mockTask1.generationLevel,
@@ -537,7 +537,7 @@ describe('Generator', () => {
         mockGenerationsRepository.getPreviousDialog.mockResolvedValueOnce([]).mockResolvedValueOnce([]);
         mockGenerationsRepository.retrieveGenerationsByProblemID.mockResolvedValueOnce([]).mockResolvedValueOnce([expectedGeneration]);
         mockGenerationsRepository.addGeneration.mockResolvedValueOnce(expectedGeneration);
-        mockOpenAIChat.Chat.mockResolvedValueOnce(mockChatOutput).mockResolvedValueOnce(mockChatOutput);
+        mockLLMChat.Chat.mockResolvedValueOnce(mockChatOutput).mockResolvedValueOnce(mockChatOutput);
 
         // When
         const [result1, result2] = await Promise.all([
@@ -549,7 +549,7 @@ describe('Generator', () => {
         expect(result1).toBe(mockGenerationId);
         expect(result2).toBe(mockGenerationId);
         expect(mockTemplatesRepository.getTemplate).toBeCalledTimes(1);
-        expect(mockOpenAIChat.Chat).toBeCalledTimes(1);
+        expect(mockLLMChat.Chat).toBeCalledTimes(1);
         // `addGeneration` should only be called once due to mutex, even though `addTask` was called twice.
         expect(mockGenerationsRepository.addGeneration).toBeCalledTimes(1);
     });

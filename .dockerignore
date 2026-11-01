@@ -1,0 +1,7 @@
+# config/config.yaml holds real credentials on developer machines: never bake it in.
+config/
+node_modules/
+.git/
+.idea/
+k8s/
+Makefile
