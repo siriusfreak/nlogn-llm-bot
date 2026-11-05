@@ -3,7 +3,7 @@ TAG     ?= $(shell git rev-parse HEAD)
 NS      := nlogn-llm-bot
 KUBECTL := kubectl --context microk8s
 
-.PHONY: test build push diff deploy logs
+.PHONY: test build push deploy logs
 
 test:
 	npm test
@@ -16,13 +16,8 @@ build:
 push: build
 	docker push $(IMAGE):$(TAG)
 
-diff:
-	sed 's#$(IMAGE):TAG#$(IMAGE):$(TAG)#' k8s/deployment.yaml | $(KUBECTL) diff -f - || true
-
 deploy:
-	$(KUBECTL) apply -f k8s/namespace.yaml
-	sed 's#$(IMAGE):TAG#$(IMAGE):$(TAG)#' k8s/deployment.yaml | $(KUBECTL) apply -f -
-	$(KUBECTL) -n $(NS) rollout status deployment/nlogn-llm-bot --timeout=180s
+	@echo "Manifests are k8s/nlogn-llm-bot in home-infrastructure: set the image tag to $(TAG), commit there, then Sync in Argo CD."
 
 logs:
 	$(KUBECTL) -n $(NS) logs deploy/nlogn-llm-bot --tail=200 -f

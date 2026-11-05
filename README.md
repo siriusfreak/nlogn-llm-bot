@@ -45,7 +45,7 @@ The image carries no credentials. In the cluster they come from Secrets that the
 
 ```bash
 make push      # docker build linux/amd64 + push registry.i.siriusfrk.ru/nlogn-llm-bot:<commit sha>
-make diff      # kubectl diff against the live deployment
-make deploy    # apply k8s/, wait for the rollout
 make logs
 ```
+
+The manifests are `k8s/nlogn-llm-bot` in home-infrastructure: set the image tag there, commit, then Sync in Argo CD.
